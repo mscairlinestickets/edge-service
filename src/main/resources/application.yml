@@ -1,5 +1,25 @@
+server:
+  port: 9000
+  netty:
+    connection-timeout: 2s
+  shutdown: GRACEFUL
+
 spring:
   application:
     name: edge-service
-
+  lifecycle:
+    timeout-per-shutdown-phase: 15s
+  config:
+    import: "optional:configserver:"
+  cloud:
+    config:
+      enabled: false
+    gateway:
+      server:
+        webflux:
+          routes:
+            - id: ticket-service
+              uri: ${TICKET_SERVICE_URL:http://localhost:9001}/api/flights
+              predicates:
+                - Path=/api/flights/**
 

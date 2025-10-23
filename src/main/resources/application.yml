@@ -14,12 +14,28 @@ spring:
   cloud:
     config:
       enabled: false
-    gateway:
-      server:
-        webflux:
-          routes:
-            - id: ticket-service
-              uri: ${TICKET_SERVICE_URL:http://localhost:9001}/api/flights
-              predicates:
-                - Path=/api/flights/**
+    gateway.server.webflux:
+      routes:
+        - id: ticket-service
+          uri: ${TICKET_SERVICE_URL:http://localhost:9001}/api/flights
+          predicates:
+            - Path=/api/flights/**
+  security.oauth2.client.registration:
+    github:
+      client-id: <your>
+      client-secret: <your>
+      client-name: Github
+      scope: read:user, user:email
+    google:
+      client-id: <your
+      client-secret: <your>
+      scope: profile, email, openid
+      client-name: Google
+
+    provider:
+      github:
+        authorization: https://github.com/login/oauth/authorize
+        token: https://github.com/login/oauth/access_token
+        user-info-uri: https://api.github.com/user
+
 

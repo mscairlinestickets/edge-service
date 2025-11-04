@@ -20,22 +20,16 @@ spring:
           uri: ${TICKET_SERVICE_URL:http://localhost:9001}/api/flights
           predicates:
             - Path=/api/flights/**
-  security.oauth2.client.registration:
-    github:
-      client-id: <your>
-      client-secret: <your>
-      client-name: Github
-      scope: read:user, user:email
-    google:
-      client-id: <your
-      client-secret: <your>
-      scope: profile, email, openid
-      client-name: Google
+        - id: auth-service
+          uri: ${AUTH_SERVICE_URL:http://localhost:9005}/api/auth/login
+          predicates:
+            - Path=/api/auth/**
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          jwk-set-uri: http://localhost:9000/api/auth/.well-known/jwks.json
 
-    provider:
-      github:
-        authorization: https://github.com/login/oauth/authorize
-        token: https://github.com/login/oauth/access_token
-        user-info-uri: https://api.github.com/user
+
 
 

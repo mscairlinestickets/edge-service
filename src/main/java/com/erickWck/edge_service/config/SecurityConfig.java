@@ -2,29 +2,36 @@ package com.erickWck.edge_service.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
 import org.springframework.security.web.server.SecurityWebFilterChain;
-import org.springframework.web.reactive.config.EnableWebFlux;
+import org.springframework.security.web.server.context.NoOpServerSecurityContextRepository;
+
 
 @Configuration
-@EnableWebFlux
 public class SecurityConfig {
+
 
 
     @Bean
     public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) {
 
-        return http
+        http
+                .csrf(ServerHttpSecurity.CsrfSpec::disable)
+                .cors(ServerHttpSecurity.CorsSpec::disable)
+                .securityContextRepository(NoOpServerSecurityContextRepository.getInstance())
                 .authorizeExchange(exchange -> {
-                    exchange.pathMatchers("/actuator").permitAll()
-                            .pathMatchers("/login","/css/**","/js/**").permitAll()
+                    exchange.pathMatchers(HttpMethod.POST, "/api/auth/login").permitAll()
+                            .pathMatchers(HttpMethod.GET, "/api/auth/.well-known/jwks.json").permitAll()
                             .anyExchange().authenticated();
                 })
-                .oauth2Login(oauth2 -> oauth2.loginPage("/login"))
-                .csrf(ServerHttpSecurity.CsrfSpec::disable)
-                .build();
+                .oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults()));
+
+        return http.build();
 
     }
+
 
 
 }

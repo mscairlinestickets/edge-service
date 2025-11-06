@@ -2,6 +2,7 @@ server:
   port: 9000
   netty:
     connection-timeout: 2s
+    idle-timeout: 15s
   shutdown: GRACEFUL
 
 spring:
@@ -24,6 +25,24 @@ spring:
           uri: ${AUTH_SERVICE_URL:http://localhost:9005}/api/auth/login
           predicates:
             - Path=/api/auth/**
+      default-filters:
+        - name: RequestRateLimiter
+          args:
+            redis-rate-limiter:
+              replenishRate: 10
+              burstCapacity: 20
+              requestedTokens: 1
+  data:
+    redis:
+      connect-timeout: 2s
+      host: ${REDIS_AIRLINE_URL:localhost}
+      port: 6379
+      timeout: 1s
+      lettuce:
+        pool:
+          max-active: 8
+          max-idle: 8
+          min-idle: 1
   security:
     oauth2:
       resourceserver:

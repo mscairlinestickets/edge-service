@@ -1,0 +1,62 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: edge-service
+  labels:
+    app: edge-service
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: edge-service
+  template:
+    metadata:
+      name: edge-service
+      labels:
+        app: edge-service
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/path: /actuator/prometheus
+        prometheus.io/port: "9000"
+    spec:
+      containers:
+        - name: edge-service
+          image: edge-service
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 9001
+          env:
+            - name: BPL_JVM_THREAD_COUNT
+              value: "50"
+            - name: SPRING_PROFILES_ACTIVE
+              value: test
+            - name: JAVA_TOOL_OPTIONS
+              value: "-javaagent:/workspace/BOOT-INF/lib/opentelemetry-javaagent-1.33.3.jar"
+            - name: OTEL_SERVICE_NAME
+              value: "edge-service"
+            - name: OTEL_EXPORTER_OTLP_ENDPOINT
+              value: "http://tempo:4317"
+            - name: OTEL_METRICS_EXPORTER
+              value: "none"
+          livenessProbe:
+            httpGet:
+              path: /actuator/health/liveness
+              port: 9000
+            initialDelaySeconds: 20
+            periodSeconds: 10
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /actuator/health/readiness
+              port: 9000
+            initialDelaySeconds: 20
+            periodSeconds: 10
+            failureThreshold: 3
+          volumeMounts:
+            - name: ticket-config-volume
+              mountPath: /workspace/config
+      volumes:
+        - name: ticket-config-volume
+          configMap:
+            name: ticket-config
+

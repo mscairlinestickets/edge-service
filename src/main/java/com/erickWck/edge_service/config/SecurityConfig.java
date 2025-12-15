@@ -13,7 +13,6 @@ import org.springframework.security.web.server.context.NoOpServerSecurityContext
 public class SecurityConfig {
 
 
-
     @Bean
     public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) {
 
@@ -23,7 +22,8 @@ public class SecurityConfig {
                 .securityContextRepository(NoOpServerSecurityContextRepository.getInstance())
                 .authorizeExchange(exchange -> {
                     exchange.pathMatchers(HttpMethod.POST, "/api/auth/login").permitAll()
-                            .pathMatchers(HttpMethod.GET, "/api/auth/.well-known/jwks.json").permitAll()
+                            .pathMatchers(HttpMethod.POST, "/bookings").permitAll()
+                            .pathMatchers(HttpMethod.GET, "/api/auth/.well-known/jwks.json", "/api/flights/**").permitAll()
                             .anyExchange().authenticated();
                 })
                 .oauth2ResourceServer(oauth2 -> oauth2.jwt(Customizer.withDefaults()));
@@ -31,7 +31,6 @@ public class SecurityConfig {
         return http.build();
 
     }
-
 
 
 }

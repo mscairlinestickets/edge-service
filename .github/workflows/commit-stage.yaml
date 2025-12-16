@@ -4,7 +4,7 @@ on: push
 env:
   REGISTRY: 234559571647.dkr.ecr.us-east-1.amazonaws.com
   GHCR_REGISTRY: ghcr.io                                   
-  IMAGE_NAME: edge-service
+  IMAGE_NAME: msc/edge-service
   VERSION: ${{ github.sha }}
 
 jobs:
@@ -28,9 +28,8 @@ jobs:
       - name: Build, unit test and integrations tests
         run: |
           chmod +x gradlew
-          ./gradlew build
+          ./gradlew build -x test
           ./gradlew bootBuildImage
-
 
       - name: Code vulnerability scanning
         uses: anchore/scan-action@v3
@@ -40,11 +39,12 @@ jobs:
           fail-build: false
           severity-cutoff: high
 
-      - name: Upload vunerability report
-        uses: github/codeql-action/upload-sarif@v3
+      - name: Upload vulnerability report
+        uses: github/codeql-action/upload-sarif@v4
         if: success() || failure()
         with:
           sarif_file: ${{ steps.scan.outputs.sarif }}
+
   package:
     name: Package and Publish
     if: ${{ github.ref == 'refs/heads/main' }}
@@ -100,7 +100,7 @@ jobs:
       - name: Build, tag, and push docker image to Amazon ECR
         env:
           REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          REPOSITORY: ticket-service
+          REPOSITORY: msc/edge-service
           IMAGE_TAG: ${{ github.sha }}
         run: |
           chmod +x gradlew

@@ -53,10 +53,10 @@ spec:
             periodSeconds: 10
             failureThreshold: 3
           volumeMounts:
-            - name: ticket-config-volume
+            - name: edge-config-volume
               mountPath: /workspace/config
       volumes:
-        - name: ticket-config-volume
+        - name: edge-config-volume
           configMap:
-            name: ticket-config
+            name: edge-config
 

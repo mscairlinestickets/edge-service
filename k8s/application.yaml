@@ -1,6 +1,16 @@
-spring:
-  security:
-    oauth2:
-      resourceserver:
-        jwt:
-          jwk-set-uri: http://auth-service/api/auth/.well-known/jwks.json
+gateway:
+    server:
+      webflux:
+        routes:
+          - id: auth-service
+            uri: http://auth-service
+            predicates:
+              - Path=/api/auth/**
+          - id: ticket-service
+            uri: http://ticket-service
+            predicates:
+              - Path=/api/flights/**
+          - id: booking-service
+            uri: http://booking-service
+            predicates:
+              - Path=/bookings/**
